@@ -16,10 +16,10 @@
 %  ********************************
 
 inicio :-
-		gerar(Matrix),
-		mostrar(Matrix),
-		intrucoes.
-		%jogo(Matrix).
+		gerar(Matriz),
+		mostrar(Matriz),
+		intrucoes,
+		jogo(Matriz).
 
 
 %  ********************************
@@ -29,16 +29,16 @@ inicio :-
 
 % Gerando a Matrix do game
 % Gera dois valores no inicio, por isso duas clausulas.
-gerar(Matrix):-
-	novaMatrix([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],M),
-	novaMatrix(M,Matrix).
+gerar(Matriz):-
+	novaMatriz([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],M),
+	novaMatriz(M,Matriz).
 
 % Troca os zeros da matrix por um 2 ou 4 aleatório
-novaMatrix(Matrix, NovaMatrix) :-
-	contarZeros(Matrix, Z),
+novaMatriz(Matriz, NovaMatriz) :-
+	contarZeros(Matriz, Z),
 	posicao(Z, P),
 	doisOuQuatro(N),
-	replaceZero(Matrix, P, N, NovaMatrix).
+	replaceZero(Matriz, P, N, NovaMatriz).
 
 %  ********************************
 %  Auxiliares
@@ -129,4 +129,43 @@ printNumber(N) :-
 
 intrucoes :-
 	nl,write('Esquerda: a, Baixo: s, Cima: w, Direita: d, Mostrar Matrix: b, Sair: q, Ajuda: ?'),nl.
+
+%  ********************************
+%%  JOGAR - MOVIMENTOS DO JOGO  %%
+%  ********************************
+
+%Realizar movimento
+jogo(Matriz) :- .
+
+%Se nao tem mais movimentos validos, acabou o jogo.
+jogo(Matriz) :-
+	 temJogadas(Matriz),
+	 nl, write('VOCE PERDEU! :( '), nl,
+	 abort.
+
+%Predicado once verifica se o fato e verdadeiro pelo menos uma vez
+%equal avalia se as listas sao iguais.
+temJogadas(Matriz) :-
+	once(moveEsquerda(Matriz, X)),
+	equal(Matriz, X),
+	once(moveDireita(Matriz, Y)),
+	equal(Matriz, Y),
+	once(moveCima(Matriz, Z)),
+	equal(Matriz, Z),
+	once(moveBaixo(Matriz, W)),
+	equal(Matriz,W).
+
+
+% Verifica se duas listas sao iguais
+equal([],[]).
+equal([H1|T1],[H2|T2]) :-
+	H1 == H2,
+	equal(T1,T2).
+
+
+%Verificar se ganhou
+jogo(Matriz) :-
+	max_list(Matriz, 64),
+	nl, write('VOCE VENCEUUUUUUUUU!!!!!'),nl,
+	abort.
 
