@@ -231,23 +231,22 @@ move(Matriz, 98, _) :-
 
 moveCima(Matriz, NovaMatriz) :-
 	%Rotaciona para direita
-	rotate_clockwise(Matriz, 1, Aux1),
+	rotateRight(Matriz, Aux1),
 	moveDireita(Aux1, Aux2),
 	%Rotaciona para esquerda
-	rotate_clockwise(Aux2, 3, NovaMatriz).
+        rotateLeft(Aux2, NovaMatriz).
 
 moveBaixo(Matriz, NovaMatriz) :-
-	rotate_clockwise(Matriz, 3, Aux1),
+	rotateLeft(Matriz, Aux1),
 	moveDireita(Aux1, Aux2),
-	rotate_clockwise(Aux2, 1, NovaMatriz).
+	rotateRight(Aux2, NovaMatriz).
 
 moveEsquerda(Matriz, NovaMatriz) :-
-	%Rotacao -180
-	rotate_clockwise(Matriz, 1, Aux1),
-	rotate_clockwise(Aux1, 1, Aux2),
+	rotateRight(Matriz, Aux1),
+	rotateRight(Aux1, Aux2),
 	moveDireita(Aux2, Aux3),
-	rotate_clockwise(Aux3, 3, Aux4),
-        rotate_clockwise(Aux4, 3, NovaMatriz).
+	rotateLeft(Aux3, Aux4),
+	rotateLeft(Aux4, NovaMatriz).
 
 %So implementa os movimentos para direita
 %O restante rotaciona a matriz e move para direita
@@ -529,18 +528,55 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 %%  ROTACOES NA MATRIZ  %%
 %  ********************************
 
-%usa a biblioteca clpfd
-rotate_clockwise(Matrix, N, Rotated) :-
-    N_mod_4 \= N mod 4,
-    rotate_clockwise_(N_mod_4, Matrix, Rotated).
+% Por considerar a matriz uma lista, as rotacoes tem de ser
+% implementadas na mao
+% usa a biblioteca clpfd
+% rotate_clockwise(Matrix, N, Rotated) :-
+%    N_mod_4 \= N mod 4, rotate_clockwise_(N_mod_4, Matrix, Rotated).
 
-rotate_clockwise_(0, M, M).
-rotate_clockwise_(1, M, R) :-
-    transpose(M, R0),
-    maplist(reverse, R0, R).
-rotate_clockwise_(2, M, R) :-
-    reverse(M, R0),
-    maplist(reverse, R0, R).
-rotate_clockwise_(3, M, R) :-
-    transpose(M, R0),
-    reverse(R0, R).
+%rotate_clockwise_(0, M, M).
+%rotate_clockwise_(1, M, R) :-
+%    transpose(M, R0),
+%    maplist(reverse, R0, R).
+%rotate_clockwise_(2, M, R) :-
+%    reverse(M, R0),
+%    maplist(reverse, R0, R).
+%rotate_clockwise_(3, M, R) :-
+%    transpose(M, R0),
+%    reverse(R0, R).
+
+rotateRight([A1,A2,A3,A4,B1,B2,B3,B4,C1,C2,C3,C4,D1,D2,D3,D4],[E1,E2,E3,E4,F1,F2,F3,F4,G1,G2,G3,G4,H1,H2,H3,H4]) :-
+	E1 is D1,
+	E2 is C1,
+	E3 is B1,
+	E4 is A1,
+	F1 is D2,
+	F2 is C2,
+	F3 is B2,
+	F4 is A2,
+	G1 is D3,
+	G2 is C3,
+	G3 is B3,
+	G4 is A3,
+	H1 is D4,
+	H2 is C4,
+	H3 is B4,
+	H4 is A4.
+
+rotateLeft([A1,A2,A3,A4,B1,B2,B3,B4,C1,C2,C3,C4,D1,D2,D3,D4],[E1,E2,E3,E4,F1,F2,F3,F4,G1,G2,G3,G4,H1,H2,H3,H4]) :-
+	E1 is A4,
+	E2 is B4,
+	E3 is C4,
+	E4 is D4,
+	F1 is A3,
+	F2 is B3,
+	F3 is C3,
+	F4 is D3,
+	G1 is A2,
+	G2 is B2,
+	G3 is C2,
+	G4 is D2,
+	H1 is A1,
+	H2 is B1,
+	H3 is C1,
+	H4 is D1.
