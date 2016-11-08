@@ -137,15 +137,11 @@ intrucoes :-
 %%  JOGAR  %%
 %  ********************************
 
-%Realizar movimento
-jogo(Matriz) :- 
-	n, write('Sua escolha? '),
-	get_single_char(X),
-	move(Matriz, X, B),
-	%verifica se o movimento e igual
-	(equal(Matriz, B) ->
-		(write('Movimento nao valido para essa direcao.'),nl,jogo(Matriz)) ;
-		(novaMatriz(B,NovaMatriz),mostrar(NovaMatriz),jogo(NovaMatriz))).
+%Verificar se ganhou
+jogo(Matriz) :-
+	max_list(Matriz, 64),
+	nl, write('VOCE VENCEUUUUUUUUU!!!!!'),nl,
+	abort.
 
 %Se nao tem mais movimentos validos, acabou o jogo.
 jogo(Matriz) :-
@@ -153,12 +149,24 @@ jogo(Matriz) :-
 	 nl, write('VOCE PERDEU! :( '), nl,
 	 abort.
 
+%Realizar movimento
+jogo(Matriz) :-
+	nl, write('Sua escolha? '),
+	get_single_char(X),
+	move(Matriz, X, B),
+	%verifica se o movimento e igual
+	(equal(Matriz, B) ->
+		(write('Movimento nao valido para essa direcao.'),nl,jogo(Matriz));
+		(novaMatriz(B,NovaMatriz),mostrar(NovaMatriz),jogo(NovaMatriz))).
+
+
+
 %Predicado once verifica se o fato e verdadeiro pelo menos uma vez
 %equal avalia se as listas sao iguais.
 temJogadas(Matriz) :-
-	once(moveEsquerda(Matriz, X)),
+	once(moveDireita(Matriz, X)),
 	equal(Matriz, X),
-	once(moveDireita(Matriz, Y)),
+	once(moveEsquerda(Matriz, Y)),
 	equal(Matriz, Y),
 	once(moveCima(Matriz, Z)),
 	equal(Matriz, Z),
@@ -171,13 +179,6 @@ equal([],[]).
 equal([H1|T1],[H2|T2]) :-
 	H1 == H2,
 	equal(T1,T2).
-
-
-%Verificar se ganhou
-jogo(Matriz) :-
-	max_list(Matriz, 64),
-	nl, write('VOCE VENCEUUUUUUUUU!!!!!'),nl,
-	abort.
 
 %  ********************************
 %%  MOVIMENTOS  %%
@@ -195,19 +196,19 @@ move(Matriz, 119, NovaMatriz) :-
 % 115 = s (Ascii)
 move(Matriz, 115, NovaMatriz) :-
 	write('Para baixo'), nl, nl,
-	once(moveCima(Matriz, NovaMatriz)).
+	once(moveBaixo(Matriz, NovaMatriz)).
 
 %Para Esquerda
 % 97 = a (Ascii)
 move(Matriz, 97, NovaMatriz) :-
 	write('Para esquerda'), nl, nl,
-	once(moveCima(Matriz, NovaMatriz)).
+	once(moveEsquerda(Matriz, NovaMatriz)).
 
 %Para Direita
 % 100 = d (Ascii)
 move(Matriz, 100, NovaMatriz) :-
 	write('Para direita'), nl, nl,
-	once(moveCima(Matriz, NovaMatriz)).
+	once(moveDireita(Matriz, NovaMatriz)).
 
 %Sair
 % 113 = q (Ascii)
@@ -219,18 +220,12 @@ move(_, 113, _) :-
 move(Matriz, 63, _) :-
 	write('Ajuda'), nl,
 	intrucoes,
-	jogo(Matriz)
-	abort.
+	jogo(Matriz).
 
 % Mostrar matriz
 move(Matriz, 98, _) :-
 	write('exibir matriz'),nl,
-	mostrar(Matriz), game(Matriz).
-
-% Qualquer outro caracter
-move(Matriz, _, _) :-
-	write('Movimento INVALIDO'),nl,
-	game(Matriz).
+	mostrar(Matriz), jogo(Matriz).
 
 % Movimentos
 
@@ -238,26 +233,28 @@ moveCima(Matriz, NovaMatriz) :-
 	%Rotaciona para direita
 	rotate_clockwise(Matriz, 1, Aux1),
 	moveDireita(Aux1, Aux2),
-	%Rotaciona para esquerda, por isso -1
-	rotate_clockwise(Aux2, -1, NovaMatriz).
+	%Rotaciona para esquerda
+	rotate_clockwise(Aux2, 3, NovaMatriz).
 
 moveBaixo(Matriz, NovaMatriz) :-
-	rotate_clockwise(Matriz, -1, Aux1),
+	rotate_clockwise(Matriz, 3, Aux1),
 	moveDireita(Aux1, Aux2),
 	rotate_clockwise(Aux2, 1, NovaMatriz).
 
 moveEsquerda(Matriz, NovaMatriz) :-
 	%Rotacao -180
-	rotate_clockwise(Matriz, -2, Aux1),
-	moveDireita(Aux1, Aux2),
-	rotate_clockwise(Aux2, 2, NovaMatriz).
+	rotate_clockwise(Matriz, 1, Aux1),
+	rotate_clockwise(Aux1, 1, Aux2),
+	moveDireita(Aux2, Aux3),
+	rotate_clockwise(Aux3, 3, Aux4),
+        rotate_clockwise(Aux4, 3, NovaMatriz).
 
 %So implementa os movimentos para direita
 %O restante rotaciona a matriz e move para direita
-moveDireita([], []).
 
+moveDireita([], []).
 % X X X X -> 0 0 2X 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 \= 0,
 	X3 \= 0,
 	X1 == X2,
@@ -269,7 +266,7 @@ moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
 	moveDireita(X,N).
 
 % X X X Y -> 0 X 2X Y
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X2 \= 0,
 	X4 \= 0,
 	X1 == X2,
@@ -277,22 +274,22 @@ moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
 	N4 is X4,
 	N3 is X3 + X2,
 	N2 is X1,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X X Y Z -> 0 2X Y Z
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 \= 0,
 	X1 == X2,
 	X3 \= 0,
 	N4 is X4,
 	N3 is X3,
 	N2 is X1 + X2,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X Y Z Z -> 0 X Y 2Z
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 \= 0,
 	X2 \= 0,
 	X1 \= X2,
@@ -301,85 +298,85 @@ moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
 	N4 is X4 + X3,
 	N3 is X2,
 	N2 is X1,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X Y Y Z -> 0 X 2Y Z
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 \= 0,
 	X2 \= 0,
 	X2 == X3,
 	N4 is X4,
 	N3 is X2 + X3,
 	N2 is X1,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X 0 0 0 -> 0 0 0 X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X2 == 0,
 	X3 == 0,
 	X4 == 0,
 	N4 is X1,
 	N3 is 0,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X X 0 0 -> 0 0 0 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X3 == 0,
 	X4 == 0,
 	X1 == X2,
 	N4 is X1 + X2,
 	N3 is 0,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X Y 0 0 -> 0 0 X Y
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X3 == 0,
 	X4 == 0,
 	N4 is X2,
 	N3 is X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % 0 X 0 X -> 0 0 0 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 == 0,
 	X3 == 0,
 	X2 == X4,
 	N4 is X2 + X4,
 	N3 is 0,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % 0 X 0 Y -> 0 0 X Y
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 == 0,
 	X3 == 0,
 	N4 is X4,
 	N3 is X2,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Y X X 0 -> 0 0 Y 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 == 0,
 	X2 == X3,
 	N4 is X2 + X3,
 	N3 is X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Z X Y 0 -> 0 Z X Y
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 == 0,
 	X3 \= 0,
 	X2 \= 0,
@@ -389,55 +386,55 @@ moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
 	N4 is X3,
 	N3 is X2,
 	N2 is X1,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Y Y X 0 -> 0 0 2Y X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 == 0,
 	X3 \= 0,
 	X1 == X2,
 	N4 is X3,
 	N3 is X2 + X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Y Y 0 X -> 0 0 2Y X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == 0,
 	X1 == X2,
 	N4 is X4,
 	N3 is X2 + X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Y X 0 X -> 0 0 Y 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == 0,
 	X4 == X2,
 	N4 is X4 + X2,
 	N3 is X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Z Y 0 X -> 0 Z Y X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == 0,
 	X2 \= 0,
 	N4 is X4,
 	N3 is X2,
 	N2 is X1,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X 0 0 X -> 0 0 0 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == 0,
 	X2 == 0,
@@ -445,56 +442,56 @@ moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
 	N4 is X1 + X4,
 	N3 is 0,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X 0 0 Y -> 0 0 X Y
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == 0,
 	X2 == 0,
 	N4 is X4,
 	N3 is X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X 0 0 X -> 0 0 0 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == 0,
 	X2 == 0,
-	X1 == X4
+	X1 == X4,
 	N4 is X4 + X1,
 	N3 is 0,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X 0 0 Y -> 0 0 X Y
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == 0,
 	X2 == 0,
 	N4 is X4,
 	N3 is X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Y 0 X X -> 0 0 Y 2X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 == X4,
 	X2 == 0,
 	N4 is X4 + X3,
 	N3 is X1,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Y 0 Y X -> 0 0 2Y X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 \= 0,
 	X3 \= X4,
@@ -503,29 +500,29 @@ moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
 	N4 is X4,
 	N3 is X1 + X3,
 	N2 is 0,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % Z 0 Y X -> 0 Z Y X
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 \= 0,
 	X2 == 0,
 	N4 is X4,
 	N3 is X3,
 	N2 is X1,
-	N1 is 0, 
+	N1 is 0,
 	moveDireita(X,N).
 
 % X Y Z W -> X Y Z W
-moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
 	X3 \= 0,
 	X2 \= 0,
 	N4 is X4,
 	N3 is X3,
 	N2 is X2,
-	N1 is X1, 
+	N1 is X1,
 	moveDireita(X,N).
 
 %  ********************************
@@ -534,7 +531,7 @@ moveDireita([X1,X2,X3,X4|X]), [N1,N2,N3,N4|N] :-
 
 %usa a biblioteca clpfd
 rotate_clockwise(Matrix, N, Rotated) :-
-    N_mod_4 #= N mod 4,
+    N_mod_4 \= N mod 4,
     rotate_clockwise_(N_mod_4, Matrix, Rotated).
 
 rotate_clockwise_(0, M, M).
