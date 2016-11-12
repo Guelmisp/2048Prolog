@@ -237,17 +237,16 @@ moveCima(Matriz, NovaMatriz) :-
         rotateLeft(Aux2, NovaMatriz).
 
 moveBaixo(Matriz, NovaMatriz) :-
-	rotate_clockwise(Matriz, 3, Aux1),
+	rotateLeft(Matriz, Aux1),
 	moveDireita(Aux1, Aux2),
-	rotate_clockwise(Aux2, 1, NovaMatriz).
+	rotateRight(Aux2, NovaMatriz).
 
 moveEsquerda(Matriz, NovaMatriz) :-
-	%Rotacao -180
-	rotate_clockwise(Matriz, 1, Aux1),
-	rotate_clockwise(Aux1, 1, Aux2),
+	rotateRight(Matriz, Aux1),
+	rotateRight(Aux1, Aux2),
 	moveDireita(Aux2, Aux3),
-	rotate_clockwise(Aux3, 3, Aux4),
-        rotate_clockwise(Aux4, 3, NovaMatriz).
+	rotateLeft(Aux3, Aux4),
+	rotateLeft(Aux4, NovaMatriz).
 
 %So implementa os movimentos para direita
 %O restante rotaciona a matriz e move para direita
@@ -270,10 +269,23 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X2 \= 0,
 	X4 \= 0,
 	X1 == X2,
-	X3 == X4,
+	X2 == X3,
 	N4 is X4,
 	N3 is X3 + X2,
 	N2 is X1,
+	N1 is 0,
+	moveDireita(X,N).
+
+% X X Y Y -> 0 0 2X 2Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X2 \= 0,
+	X3 \= 0,
+	X1 \= X3,
+	X1 == X2,
+	X3 == X4,
+	N4 is X4 + X3,
+	N3 is X1 + X2,
+	N2 is 0,
 	N1 is 0,
 	moveDireita(X,N).
 
@@ -296,6 +308,17 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X2 \= X3,
 	X3 == X4,
 	N4 is X4 + X3,
+	N3 is X2,
+	N2 is X1,
+	N1 is 0,
+	moveDireita(X,N).
+
+% X Y Z 0 -> 0 X Y Z
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 == 0
+	X1 \= X2,
+	X2 \= X3,
+	N4 is X3,
 	N3 is X2,
 	N2 is X1,
 	N1 is 0,
@@ -365,6 +388,18 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
+% 0 X Y 0 -> 0 0 X Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X1 == 0,
+	X4 == 0,
+	X3 \= 0,
+	X2 \= X3,
+	N4 is X3,
+	N3 is X2,
+	N2 is 0,
+	N1 is 0,
+	moveDireita(X,N).
+
 % Y X X 0 -> 0 0 Y 2X
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 == 0,
@@ -375,17 +410,26 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
-% Z X Y 0 -> 0 Z X Y
+% Y X X 0 -> 0 0 Y 2X
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 == 0,
-	X3 \= 0,
+	X2 == X3,
+	N4 is X2 + X3,
+	N3 is X1,
+	N2 is 0,
+	N1 is 0,
+	moveDireita(X,N).
+
+% 0 X Y Y -> 0 0 X 2Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 \= 0,
 	X2 \= 0,
-	X1 \= 0,
-	X1 \= X2,
-	X3 \= X4,
-	N4 is X3,
+	X1 == 0,
+	X2 \= X4,
+	X3 == X4,
+	N4 is X4 + X3,
 	N3 is X2,
-	N2 is X1,
+	N2 is 0,
 	N1 is 0,
 	moveDireita(X,N).
 
@@ -433,18 +477,6 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
-% X 0 0 X -> 0 0 0 2X
-moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
-	X4 \= 0,
-	X3 == 0,
-	X2 == 0,
-	X1 == X4,
-	N4 is X1 + X4,
-	N3 is 0,
-	N2 is 0,
-	N1 is 0,
-	moveDireita(X,N).
-
 % X 0 0 Y -> 0 0 X Y
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
@@ -464,17 +496,6 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 == X4,
 	N4 is X4 + X1,
 	N3 is 0,
-	N2 is 0,
-	N1 is 0,
-	moveDireita(X,N).
-
-% X 0 0 Y -> 0 0 X Y
-moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
-	X4 \= 0,
-	X3 == 0,
-	X2 == 0,
-	N4 is X4,
-	N3 is X1,
 	N2 is 0,
 	N1 is 0,
 	moveDireita(X,N).
@@ -503,6 +524,18 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
+% 0 X Y X -> 0 X Y X
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 \= 0,
+	X3 \= 0,
+	X2 == X4,
+	X1 == 0,
+	N4 is X4,
+	N3 is X3,
+	N2 is X2,
+	N1 is 0,
+	moveDireita(X,N).
+
 % Z 0 Y X -> 0 Z Y X
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
@@ -525,14 +558,40 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is X1,
 	moveDireita(X,N).
 
+% 0 0 0 0 -> 0 0 0 0
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 == 0,
+	X3 == 0,
+	X2 == 0,
+	X1 == 0,
+	N4 is X4,
+	N3 is X3,
+	N2 is X2,
+	N1 is X1,
+	moveDireita(X,N).
+
+% 0 X X Y -> 0 0 2X Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 \= 0,
+	X3 \= 0,
+	X1 == 0,
+	X2 == X3,
+	N4 is X4,
+	N3 is X3 + X2,
+	N2 is 0,
+	N1 is 0,
+	moveDireita(X,N).
+
+
 %  ********************************
 %%  ROTACOES NA MATRIZ  %%
 %  ********************************
 
-%usa a biblioteca clpfd
-%rotate_clockwise(Matrix, N, Rotated) :-
-%    N_mod_4 \= N mod 4,
-%    rotate_clockwise_(N_mod_4, Matrix, Rotated).
+% Por considerar a matriz uma lista, as rotacoes tem de ser
+% implementadas na mao
+% usa a biblioteca clpfd
+% rotate_clockwise(Matrix, N, Rotated) :-
+%    N_mod_4 \= N mod 4, rotate_clockwise_(N_mod_4, Matrix, Rotated).
 
 %rotate_clockwise_(0, M, M).
 %rotate_clockwise_(1, M, R) :-
@@ -544,6 +603,7 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 %rotate_clockwise_(3, M, R) :-
 %    transpose(M, R0),
 %    reverse(R0, R).
+
 rotateRight([A1,A2,A3,A4,B1,B2,B3,B4,C1,C2,C3,C4,D1,D2,D3,D4],[E1,E2,E3,E4,F1,F2,F3,F4,G1,G2,G3,G4,H1,H2,H3,H4]) :-
 	E1 is D1,
 	E2 is C1,

@@ -269,10 +269,23 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X2 \= 0,
 	X4 \= 0,
 	X1 == X2,
-	X3 == X4,
+	X2 == X3,
 	N4 is X4,
 	N3 is X3 + X2,
 	N2 is X1,
+	N1 is 0,
+	moveDireita(X,N).
+
+% X X Y Y -> 0 0 2X 2Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X2 \= 0,
+	X3 \= 0,
+	X1 \= X3,
+	X1 == X2,
+	X3 == X4,
+	N4 is X4 + X3,
+	N3 is X1 + X2,
+	N2 is 0,
 	N1 is 0,
 	moveDireita(X,N).
 
@@ -295,6 +308,17 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X2 \= X3,
 	X3 == X4,
 	N4 is X4 + X3,
+	N3 is X2,
+	N2 is X1,
+	N1 is 0,
+	moveDireita(X,N).
+
+% X Y Z 0 -> 0 X Y Z
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 == 0,
+	X1 \= X2,
+	X2 \= X3,
+	N4 is X3,
 	N3 is X2,
 	N2 is X1,
 	N1 is 0,
@@ -364,6 +388,18 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
+% 0 X Y 0 -> 0 0 X Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X1 == 0,
+	X4 == 0,
+	X3 \= 0,
+	X2 \= X3,
+	N4 is X3,
+	N3 is X2,
+	N2 is 0,
+	N1 is 0,
+	moveDireita(X,N).
+
 % Y X X 0 -> 0 0 Y 2X
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 == 0,
@@ -374,17 +410,26 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
-% Z X Y 0 -> 0 Z X Y
+% Y X X 0 -> 0 0 Y 2X
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 == 0,
-	X3 \= 0,
+	X2 == X3,
+	N4 is X2 + X3,
+	N3 is X1,
+	N2 is 0,
+	N1 is 0,
+	moveDireita(X,N).
+
+% 0 X Y Y -> 0 0 X 2Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 \= 0,
 	X2 \= 0,
-	X1 \= 0,
-	X1 \= X2,
-	X3 \= X4,
-	N4 is X3,
+	X1 == 0,
+	X2 \= X4,
+	X3 == X4,
+	N4 is X4 + X3,
 	N3 is X2,
-	N2 is X1,
+	N2 is 0,
 	N1 is 0,
 	moveDireita(X,N).
 
@@ -432,18 +477,6 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
-% X 0 0 X -> 0 0 0 2X
-moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
-	X4 \= 0,
-	X3 == 0,
-	X2 == 0,
-	X1 == X4,
-	N4 is X1 + X4,
-	N3 is 0,
-	N2 is 0,
-	N1 is 0,
-	moveDireita(X,N).
-
 % X 0 0 Y -> 0 0 X Y
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
@@ -463,17 +496,6 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X1 == X4,
 	N4 is X4 + X1,
 	N3 is 0,
-	N2 is 0,
-	N1 is 0,
-	moveDireita(X,N).
-
-% X 0 0 Y -> 0 0 X Y
-moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
-	X4 \= 0,
-	X3 == 0,
-	X2 == 0,
-	N4 is X4,
-	N3 is X1,
 	N2 is 0,
 	N1 is 0,
 	moveDireita(X,N).
@@ -502,6 +524,18 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N1 is 0,
 	moveDireita(X,N).
 
+% 0 X Y X -> 0 X Y X
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 \= 0,
+	X3 \= 0,
+	X2 == X4,
+	X1 == 0,
+	N4 is X4,
+	N3 is X3,
+	N2 is X2,
+	N1 is 0,
+	moveDireita(X,N).
+
 % Z 0 Y X -> 0 Z Y X
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	X4 \= 0,
@@ -523,6 +557,31 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 	N2 is X2,
 	N1 is X1,
 	moveDireita(X,N).
+
+% 0 0 0 0 -> 0 0 0 0
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 == 0,
+	X3 == 0,
+	X2 == 0,
+	X1 == 0,
+	N4 is X4,
+	N3 is X3,
+	N2 is X2,
+	N1 is X1,
+	moveDireita(X,N).
+
+% 0 X X Y -> 0 0 2X Y
+moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
+	X4 \= 0,
+	X3 \= 0,
+	X1 == 0,
+	X2 == X3,
+	N4 is X4,
+	N3 is X3 + X2,
+	N2 is 0,
+	N1 is 0,
+	moveDireita(X,N).
+
 
 %  ********************************
 %%  ROTACOES NA MATRIZ  %%
