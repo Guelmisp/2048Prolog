@@ -315,7 +315,7 @@ moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
 
 % X Y Z 0 -> 0 X Y Z
 moveDireita([X1,X2,X3,X4|X], [N1,N2,N3,N4|N]) :-
-	X4 == 0
+	X4 == 0,
 	X1 \= X2,
 	X2 \= X3,
 	N4 is X3,

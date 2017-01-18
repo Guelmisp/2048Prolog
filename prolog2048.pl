@@ -30,7 +30,7 @@ inicio :-
 %  ********************************
 
 
-% Gerando a Matrix do game
+% Gerando a Matrix/Lista do game
 % Gera dois valores no inicio, por isso duas clausulas.
 gerar(Matriz):-
 	novaMatriz([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],M),
@@ -92,7 +92,7 @@ replaceZero([H1|T1], P, N, [H2|T2]) :-
 
 
 %  ********************************
-%% Printar a Matrix              %%
+%% Printar a Matriz/Lista        %%
 %  ********************************
 
 % Se estiver zerada nao exibe nada
@@ -139,7 +139,7 @@ intrucoes :-
 
 %Verificar se ganhou
 jogo(Matriz) :-
-	max_list(Matriz, 64),
+	max_list(Matriz, 2048),
 	nl, write('VOCE VENCEUUUUUUUUU!!!!!'),nl,
 	abort.
 
